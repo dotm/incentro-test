@@ -1,8 +1,9 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, reactive, toRefs, watch } from 'vue'
-import { useMutation, useQuery } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 
 import type { Post } from './types'
+import { BACKEND_URL } from './constants';
 
 export default defineComponent({
   name: 'PostDetails',
@@ -27,13 +28,13 @@ export default defineComponent({
       mutate: callUpdatePost,
     } = useMutation({
       mutationFn: async () => {
-        await fetch('https://jsonplaceholder.typicode.com/posts/' + props.post.id, {
+        await fetch(`${BACKEND_URL}/posts/${props.post.id}`, {
           method: 'PUT',
           body: JSON.stringify({
             id: props.post.id,
             title: state.title,
             body: state.body,
-            userId: 1,
+            userId: 1, //TODO: integrate with user
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
@@ -50,6 +51,15 @@ export default defineComponent({
     })
     
     const updatePost = () => {
+      //TODO: use form library for validation
+      if (state.title === "") {
+        alert("Title can't be empty")
+        return
+      }
+      if (state.body === "") {
+        alert("Body can't be empty")
+        return
+      }
       callUpdatePost()
     };
 
@@ -61,7 +71,7 @@ export default defineComponent({
       mutate: callDeletePost,
     } = useMutation({
       mutationFn: async () => {
-        await fetch('https://jsonplaceholder.typicode.com/posts/' + props.post.id, {
+        await fetch(`${BACKEND_URL}/posts/${props.post.id}`, {
             method: 'DELETE',
           })
           .then((response) => response.json())

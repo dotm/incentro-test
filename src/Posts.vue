@@ -4,9 +4,10 @@ import { useMutation, useQuery } from '@tanstack/vue-query'
 
 import type { Post } from './types'
 import PostDetail from './Post.vue'
+import { BACKEND_URL } from './constants'
 
 const fetcher = async (): Promise<Post[]> =>
-  await fetch('https://jsonplaceholder.typicode.com/posts').then((response) =>
+  await fetch(`${BACKEND_URL}/posts`).then((response) =>
     response.json(),
   )
 
@@ -38,23 +39,31 @@ export default defineComponent({
       mutate: callCreatePost,
     } = useMutation({
       mutationFn: async () => {
-        await fetch('https://jsonplaceholder.typicode.com/posts', {
+        await fetch(`${BACKEND_URL}/posts`, {
           method: 'POST',
           body: JSON.stringify({
             title: state.title,
             body: state.body,
-            userId: 1,
+            userId: 1, //TODO: integrate with user
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
           },
         })
           .then((response) => response.json())
-        refetchList()
       },
     })
 
     const createPost = () => {
+      //TODO: use form library for validation
+      if (state.title === "") {
+        alert("Title can't be empty")
+        return
+      }
+      if (state.body === "") {
+        alert("Body can't be empty")
+        return
+      }
       callCreatePost()
     };
     watch(isSuccessForCreate, (success) => {
